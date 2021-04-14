@@ -1082,7 +1082,7 @@ export type NetworkPolicyPeer = {
 };
 
 export type NetworkPolicyPort = {
-  port?: string;
+  port?: string | number;
   protocol?: string;
 };
 
