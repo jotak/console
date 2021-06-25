@@ -11,6 +11,7 @@ import { withTranslation } from 'react-i18next';
 import { NameValueEditorPair, EnvFromPair, EnvType } from './index';
 import { ValueFromPair } from './value-from-pair';
 import withDragDropContext from './drag-drop-context';
+import { LabelInput } from './label-input';
 
 const NameValueEditor_ = withDragDropContext(
   class NameValueEditor extends React.Component {
@@ -94,6 +95,7 @@ const NameValueEditor_ = withDragDropContext(
         toolTip,
         t,
         onLastItemRemoved,
+        suggestLabels,
       } = this.props;
       const nameString = this.props.nameString || t('public~Key');
       const valueString = this.props.valueString || t('public~Value');
@@ -119,6 +121,7 @@ const NameValueEditor_ = withDragDropContext(
             disableReorder={nameValuePairs.length === 1}
             toolTip={toolTip}
             alwaysAllowRemove={!!onLastItemRemoved}
+            suggestLabels={suggestLabels}
           />
         );
       });
@@ -198,6 +201,7 @@ NameValueEditor.propTypes = {
   addConfigMapSecret: PropTypes.bool,
   toolTip: PropTypes.string,
   onLastItemRemoved: PropTypes.func,
+  suggestLabels: PropTypes.bool,
 };
 NameValueEditor.defaultProps = {
   allowSorting: false,
@@ -473,6 +477,7 @@ const PairElement_ = DragSource(
           t,
           valueString,
           alwaysAllowRemove,
+          suggestLabels,
         } = this.props;
         const deleteIcon = (
           <>
@@ -510,15 +515,24 @@ const PairElement_ = DragSource(
                 </div>
               )}
               <div className="col-xs-5 pairs-list__name-field">
-                <input
-                  type="text"
-                  data-test="pairs-list-name"
-                  className="pf-c-form-control"
-                  placeholder={nameString}
-                  value={pair[NameValueEditorPair.Name]}
-                  onChange={this._onChangeName}
-                  disabled={readOnly}
-                />
+                {suggestLabels ? (
+                  <LabelInput
+                    placeholder={nameString}
+                    textValue={pair[NameValueEditorPair.Name]}
+                    onChange={(val) => this._onChangeName({ target: { value: val }})}
+                    disabled={readOnly}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    data-test="pairs-list-name"
+                    className="pf-c-form-control"
+                    placeholder={nameString}
+                    value={pair[NameValueEditorPair.Name]}
+                    onChange={this._onChangeName}
+                    disabled={readOnly}
+                  />
+                )}
               </div>
               {_.isPlainObject(pair[NameValueEditorPair.Value]) ? (
                 <div className="col-xs-5 pairs-list__value-pair-field">

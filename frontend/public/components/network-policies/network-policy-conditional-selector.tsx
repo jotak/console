@@ -2,14 +2,8 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
-import { AsyncComponent } from '../utils/async';
-
-const NameValueEditorComponent = (props) => (
-  <AsyncComponent
-    loader={() => import('../utils/name-value-editor').then((c) => c.NameValueEditor)}
-    {...props}
-  />
-);
+import { DraggableNameValueEditor, LabelsSelector } from '../utils/name-value-editor-2';
+import {  } from '../utils/name-value-editor';
 
 type NetworkPolicyConditionalSelectorProps = {
   selectorType: 'pod' | 'namespace';
@@ -24,10 +18,6 @@ export const NetworkPolicyConditionalSelector: React.FunctionComponent<NetworkPo
   const { t } = useTranslation();
   const { selectorType, helpText, values, onChange } = props;
   const [isVisible, setVisible] = React.useState(false);
-
-  const handleSelectorChange = (updated) => {
-    onChange(updated.nameValuePairs);
-  };
 
   const title = selectorType === 'pod' ? t('public~Pod selector') : t('public~Namespace selector');
   const addSelectorText =
@@ -50,14 +40,13 @@ export const NetworkPolicyConditionalSelector: React.FunctionComponent<NetworkPo
           <div className="help-block">
             <p>{secondHelpText}</p>
           </div>
-          <NameValueEditorComponent
-            nameValuePairs={values.length > 0 ? values : [['', '']]}
+          <DraggableNameValueEditor
+            pairs={values.length > 0 ? values : [['', '']]}
             valueString={t('public~Selector')}
             nameString={t('public~Label')}
             addString={t('public~Add label')}
             readOnly={false}
-            allowSorting={false}
-            updateParentData={handleSelectorChange}
+            onChange={onChange}
             onLastItemRemoved={() => setVisible(false)}
           />
         </>
