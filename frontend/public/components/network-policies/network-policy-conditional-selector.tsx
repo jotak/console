@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
-import { DraggableNameValueEditor, LabelsSelector } from '../utils/name-value-editor-2';
+import { LabelsSelector } from '../utils/name-value-editor-2';
 import {  } from '../utils/name-value-editor';
 
 type NetworkPolicyConditionalSelectorProps = {
@@ -40,7 +40,7 @@ export const NetworkPolicyConditionalSelector: React.FunctionComponent<NetworkPo
           <div className="help-block">
             <p>{secondHelpText}</p>
           </div>
-          <DraggableNameValueEditor
+          <LabelsSelector
             pairs={values.length > 0 ? values : [['', '']]}
             valueString={t('public~Selector')}
             nameString={t('public~Label')}

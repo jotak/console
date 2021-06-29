@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as _ from 'lodash-es';
 import { useTranslation } from 'react-i18next';
 import * as classNames from 'classnames';
-import { DragSource, DragSourceCollector, DragSourceSpec, DropTarget, ConnectDragSource, ConnectDragPreview, ConnectDropTarget, DropTargetSpec, DropTargetCollector } from 'react-dnd';
+import { useDrag, useDrop } from 'react-dnd';
 import { Button, Tooltip } from '@patternfly/react-core';
 import { GripVerticalIcon, MinusCircleIcon, PlusCircleIcon } from '@patternfly/react-icons';
 
@@ -283,10 +283,6 @@ const StandardNameInput = (props: NameInputElementProps) => (
 type DraggablePairElementProps = DragItemProps & PairElementProps & {
   onMove: (index1: number, index2: number) => void,
   disableReorder: boolean,
-  connectDragSource: ConnectDragSource,
-  connectDragPreview: ConnectDragPreview,
-  connectDropTarget: ConnectDropTarget,
-  isDragging: boolean,
 };
 
 type DragItemProps = {
@@ -294,106 +290,104 @@ type DragItemProps = {
   rowSourceId: string,
 }
 
-const pairSource: DragSourceSpec<DraggablePairElementProps, DragItemProps> = {
-  beginDrag(props, monitor, component) {
-    console.log('===DRAG====');
-    console.log(monitor);
-    console.log(monitor.getItem());
-    console.log(component);
-    return {
-      index: props.index,
-      rowSourceId: props.rowSourceId,
-    };
-  },
-};
+// const pairSource: DragSourceSpec<DraggablePairElementProps, DragItemProps> = {
+//   beginDrag(props, monitor, component) {
+//     console.log('===DRAG====');
+//     console.log(monitor);
+//     console.log(monitor.getItem());
+//     console.log(component);
+//     return {
+//       index: props.index,
+//       rowSourceId: props.rowSourceId,
+//     };
+//   },
+// };
 
-const itemTarget: DropTargetSpec<DraggablePairElementProps> = {
-  hover(props, monitor, component: React.ReactElement) {
-    const dragIndex = monitor.getItem().index;
-    const hoverIndex = props.index;
-    // Don't replace items with themselves or with other row groupings on the page
-    if (dragIndex === hoverIndex || monitor.getItem().rowSourceId !== props.rowSourceId) {
-      return;
-    }
-    // Determine rectangle on screen
-    console.log('===HOVER====');
-    console.log(props);
-    console.log(monitor);
-    console.log(monitor.getItem());
-    console.log(component);
-    const hoverBoundingRect = (component as any)?.node?.getBoundingClientRect() || { bottom: 0, top: 0 };
-    // Get vertical middle
-    const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+// const itemTarget: DropTargetSpec<DraggablePairElementProps> = {
+//   hover(props, monitor, component: React.ReactElement) {
+//     const dragIndex = monitor.getItem().index;
+//     const hoverIndex = props.index;
+//     // Don't replace items with themselves or with other row groupings on the page
+//     if (dragIndex === hoverIndex || monitor.getItem().rowSourceId !== props.rowSourceId) {
+//       return;
+//     }
+//     // Determine rectangle on screen
+//     console.log('===HOVER====');
+//     console.log(props);
+//     console.log(monitor);
+//     console.log(monitor.getItem());
+//     console.log(component);
+//     const hoverBoundingRect = (component as any)?.node?.getBoundingClientRect() || { bottom: 0, top: 0 };
+//     // Get vertical middle
+//     const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
 
-    // Determine mouse position
-    const clientOffset = monitor.getClientOffset();
+//     // Determine mouse position
+//     const clientOffset = monitor.getClientOffset();
 
-    // Get pixels to the top
-    const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+//     // Get pixels to the top
+//     const hoverClientY = clientOffset.y - hoverBoundingRect.top;
 
-    // Only perform the move when the mouse has crossed half of the items height
-    // When dragging downwards, only move when the cursor is below 50%
-    // When dragging upwards, only move when the cursor is above 50%
+//     // Only perform the move when the mouse has crossed half of the items height
+//     // When dragging downwards, only move when the cursor is below 50%
+//     // When dragging upwards, only move when the cursor is above 50%
 
-    // Dragging downwards
-    if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-      return;
-    }
+//     // Dragging downwards
+//     if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+//       return;
+//     }
 
-    // Dragging upwards
-    if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-      return;
-    }
+//     // Dragging upwards
+//     if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+//       return;
+//     }
 
-    // Time to actually perform the action
-    props.onMove(dragIndex, hoverIndex);
+//     // Time to actually perform the action
+//     props.onMove(dragIndex, hoverIndex);
 
-    // Note: we're mutating the monitor item here!
-    // Generally it's better to avoid mutations,
-    // but it's good here for the sake of performance
-    // to avoid expensive index searches.
-    monitor.getItem().index = hoverIndex;
-  },
-};
+//     // Note: we're mutating the monitor item here!
+//     // Generally it's better to avoid mutations,
+//     // but it's good here for the sake of performance
+//     // to avoid expensive index searches.
+//     monitor.getItem().index = hoverIndex;
+//   },
+// };
 
-type DragCollectedProps = {
-  connectDragSource: ConnectDragSource;
-  connectDragPreview: ConnectDragPreview;
-  isDragging: boolean;
-};
-type DropCollectedProps = {
-  connectDropTarget: ConnectDropTarget;
-};
+// type DragCollectedProps = {
+//   connectDragSource: ConnectDragSource;
+//   connectDragPreview: ConnectDragPreview;
+//   isDragging: boolean;
+// };
+// type DropCollectedProps = {
+//   connectDropTarget: ConnectDropTarget;
+// };
 
-const collectSourcePair: DragSourceCollector<DragCollectedProps, {}> = (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  connectDragPreview: connect.dragPreview(),
-  isDragging: monitor.isDragging(),
-});
+// const collectSourcePair: DragSourceCollector<DragCollectedProps, {}> = (connect, monitor) => ({
+//   connectDragSource: connect.dragSource(),
+//   connectDragPreview: connect.dragPreview(),
+//   isDragging: monitor.isDragging(),
+// });
 
-const collectTargetPair: DropTargetCollector<DropCollectedProps, {}> = (connect) => ({
-  connectDropTarget: connect.dropTarget(),
-});
+// const collectTargetPair: DropTargetCollector<DropCollectedProps, {}> = (connect) => ({
+//   connectDropTarget: connect.dropTarget(),
+// });
 
-const DraggablePairElement = DragSource<DragItemProps, DragCollectedProps>(
-  DRAGGABLE_TYPE.ENV_ROW,
-  pairSource,
-  collectSourcePair,
-)(
-  DropTarget<DragItemProps, DropCollectedProps>(
-    DRAGGABLE_TYPE.ENV_ROW,
-    itemTarget,
-    collectTargetPair,
-  )((props: DraggablePairElementProps) => {
-    const { t } = useTranslation();
-    const {
-      readOnly,
-      disableReorder,
-      connectDragSource,
-      connectDragPreview,
-      connectDropTarget,
-      isDragging,
-    } = props;
+const DraggablePairElement = (props: DraggablePairElementProps) => {
+  const { t } = useTranslation();
+  const {
+    readOnly,
+    disableReorder,
+  } = props;
+
+    const [{ isDragging }, drag, dragPreview] = useDrag({
+      item: {
+        index: props.index,
+        rowSourceId: props.rowSourceId,
+        type: DRAGGABLE_TYPE.ENV_ROW
+      },
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging()
+      })
+    });
   
     //  const nodeRef = React.useRef(undefined as HTMLDivElement | undefined);
     const dragButton = (
@@ -410,22 +404,20 @@ const DraggablePairElement = DragSource<DragItemProps, DragCollectedProps>(
         </Button>
       </div>
     );
-    return connectDropTarget(
-      connectDragPreview(
-        <div
-        // ref="nodeRef" TODO
-        >
-          <PairElement
-            {...props}
-            className={isDragging && 'pairs-list__row-dragging'}
-            leftColumn={!readOnly && (
-              <div className="col-xs-1 pairs-list__action">
-                {disableReorder ? dragButton : connectDragSource(dragButton)}
-              </div>
-            )}
-          />
-        </div>
-      )
+    return (
+      <div
+      // ref="nodeRef" TODO
+      >
+        <PairElement
+          {...props}
+          className={isDragging && 'pairs-list__row-dragging'}
+          leftColumn={!readOnly && (
+            <div className="col-xs-1 pairs-list__action">
+              {disableReorder ? dragButton : connectDragSource(dragButton)}
+            </div>
+          )}
+        />
+      </div>
     );
   })
 );
