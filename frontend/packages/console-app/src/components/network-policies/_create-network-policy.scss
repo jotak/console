@@ -4,18 +4,18 @@
   }
 }
 
-.co-create-networkpolicy__deny .checkbox {
-  padding-right: 15px;
+.co-create-networkpolicy__deny-checkboxes {
+  display: flex;
 }
 
-.co-create-networkpolicy__peer-type {
-  margin-top: 10px;
+.co-create-networkpolicy__deny-checkbox {
+  padding-right: 1rem;
 }
 
 /* Style override for FormFieldGroupExpandable: bigger font (~h2), move toggle icon a little bit lower */
 .co-create-networkpolicy__expandable-xl > .pf-c-form__field-group-header .pf-c-form__field-group-header-title-text {
-  font-size: var(--pf-global--FontSize--xl);
   font-family: var(--pf-global--FontFamily--heading--sans-serif);
+  font-size: var(--pf-global--FontSize--xl);
   font-weight: var(--pf-global--FontWeight--normal);
   line-height: var(--pf-global--LineHeight--md);
 }
@@ -29,20 +29,11 @@
 }
 
 .co-create-networkpolicy__rule-header label {
-  margin-top: 8px;
-}
-
-.co-create-networkpolicy__rule-header .pf-m-secondary {
-  margin: 8px;
-  top: -8px;
+  margin-top: 0.6rem;
 }
 
 .co-create-networkpolicy__rule-header-right {
   margin-left: auto;
-}
-
-.co-create-networkpolicy__rule-header .pf-m-link {
-  margin-bottom: 15px;
 }
 
 .co-create-networkpolicy__rule-header .pf-m-secondary {

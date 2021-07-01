@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Alert, AlertActionCloseButton, Button } from '@patternfly/react-core';
 import { PlusCircleIcon, MinusCircleIcon } from '@patternfly/react-icons';
+import * as _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 import { NetworkPolicyIPBlock } from './network-policy-model';
 
 export const NetworkPolicyPeerIPBlock: React.FunctionComponent<PeerIPBlockProps> = (props) => {
@@ -15,7 +16,7 @@ export const NetworkPolicyPeerIPBlock: React.FunctionComponent<PeerIPBlockProps>
   };
 
   const handleExceptionsChange = (idx: number, value: string) => {
-    ipBlock.except[idx] = value;
+    ipBlock.except[idx].value = value;
     onChange(ipBlock);
   };
 
@@ -51,7 +52,7 @@ export const NetworkPolicyPeerIPBlock: React.FunctionComponent<PeerIPBlockProps>
           </div>
         )}
         {ipBlock.except.map((exc, idx) => (
-          <div className="pf-c-input-group" key={`exception-${idx}`}>
+          <div className="pf-c-input-group" key={exc.key}>
             <input
               className="pf-c-form-control"
               type="text"
@@ -60,10 +61,11 @@ export const NetworkPolicyPeerIPBlock: React.FunctionComponent<PeerIPBlockProps>
               aria-describedby="ports-help"
               name={`exception-${idx}`}
               id={`exception-${idx}`}
-              value={exc}
+              value={exc.value}
             />
             <Button
-              className="co-create-networkpolicy__remove-port"
+              aria-label={t('public~Remove exception')}
+              className="co-create-networkpolicy__remove-exception"
               onClick={() => {
                 ipBlock.except = [
                   ...ipBlock.except.slice(0, idx),
@@ -82,7 +84,7 @@ export const NetworkPolicyPeerIPBlock: React.FunctionComponent<PeerIPBlockProps>
           <Button
             className="pf-m-link--align-left"
             onClick={() => {
-              ipBlock.except.push('');
+              ipBlock.except.push({ key: _.uniqueId('exception-'), value: '' });
               onChange(ipBlock);
             }}
             type="button"

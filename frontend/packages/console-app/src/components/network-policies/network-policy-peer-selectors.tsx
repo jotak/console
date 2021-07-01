@@ -14,22 +14,24 @@ export const NetworkPolicyPeerSelectors: React.FunctionComponent<PeerSelectorPro
     onChange(podSelector, updated);
   };
 
-  const helpTextPodSelector =
-    direction === 'ingress'
-      ? namespaceSelector
-        ? t(
-            'public~If no pod selector is provided, traffic from all pods in elligible namespaces will be allowed.',
-          )
-        : t(
-            'public~If no pod selector is provided, traffic from all pods in this namespace will be allowed.',
-          )
-      : namespaceSelector
+  let helpTextPodSelector;
+  if (direction === 'ingress') {
+    helpTextPodSelector = namespaceSelector
+      ? t(
+          'public~If no pod selector is provided, traffic from all pods in elligible namespaces will be allowed.',
+        )
+      : t(
+          'public~If no pod selector is provided, traffic from all pods in this namespace will be allowed.',
+        );
+  } else {
+    helpTextPodSelector = namespaceSelector
       ? t(
           'public~If no pod selector is provided, traffic to all pods in elligible namespaces will be allowed.',
         )
       : t(
           'public~If no pod selector is provided, traffic to all pods in this namespace will be allowed.',
         );
+  }
 
   return (
     <>

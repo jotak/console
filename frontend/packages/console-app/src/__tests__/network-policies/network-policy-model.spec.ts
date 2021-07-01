@@ -1,7 +1,7 @@
 import {
   NetworkPolicy,
   networkPolicyToK8sResource,
-} from '../../../public/components/network-policies/network-policy-model';
+} from '../../components/network-policies/network-policy-model';
 
 describe('NetworkPolicy model conversion', () => {
   it('should convert deny-all to K8s resource', () => {
@@ -53,6 +53,7 @@ describe('NetworkPolicy model conversion', () => {
             ],
             ports: [
               {
+                key: '1',
                 port: '443',
                 protocol: 'TCP',
               },
@@ -121,6 +122,7 @@ describe('NetworkPolicy model conversion', () => {
             ],
             ports: [
               {
+                key: '1',
                 port: '443',
                 protocol: 'TCP',
               },
@@ -183,7 +185,7 @@ describe('NetworkPolicy model conversion', () => {
             peers: [
               {
                 key: '1',
-                ipBlock: { cidr: '10.2.1.0/16', except: ['10.2.1.0/12'] },
+                ipBlock: { cidr: '10.2.1.0/16', except: [{ key: '1', value: '10.2.1.0/12' }] },
               },
             ],
             ports: [],

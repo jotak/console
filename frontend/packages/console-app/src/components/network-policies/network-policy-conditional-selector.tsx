@@ -1,12 +1,14 @@
 import * as React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Button } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
-import { AsyncComponent } from '../utils/async';
+import { useTranslation } from 'react-i18next';
+import { AsyncComponent } from '@console/internal/components/utils/async';
 
 const NameValueEditorComponent = (props) => (
   <AsyncComponent
-    loader={() => import('../utils/name-value-editor').then((c) => c.NameValueEditor)}
+    loader={() =>
+      import('@console/internal/components/utils/name-value-editor').then((c) => c.NameValueEditor)
+    }
     {...props}
   />
 );

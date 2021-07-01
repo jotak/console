@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Button } from '@patternfly/react-core';
 import { PlusCircleIcon, MinusCircleIcon } from '@patternfly/react-icons';
-
-import { Dropdown } from '../utils';
+import * as _ from 'lodash';
+import { useTranslation } from 'react-i18next';
+import { Dropdown } from '@console/internal/components/utils';
 import { NetworkPolicyPort } from './network-policy-model';
 
 export const NetworkPolicyPorts: React.FunctionComponent<NetworkPolicyPortsProps> = (props) => {
@@ -43,7 +43,7 @@ export const NetworkPolicyPorts: React.FunctionComponent<NetworkPolicyPortsProps
             if (isAllPorts) {
               onChange([]);
             } else {
-              onChange([{ port: '', protocol: 'TCP' }]);
+              onChange([{ key: _.uniqueId('port-'), port: '', protocol: 'TCP' }]);
             }
           }}
           selectedKey={selectedKey}
@@ -80,6 +80,7 @@ export const NetworkPolicyPorts: React.FunctionComponent<NetworkPolicyPortsProps
                   value={port.port}
                 />
                 <Button
+                  aria-label={t('public~Remove port')}
                   className="co-create-networkpolicy__remove-port"
                   onClick={() => onRemove(idx)}
                   type="button"
@@ -94,7 +95,7 @@ export const NetworkPolicyPorts: React.FunctionComponent<NetworkPolicyPortsProps
             <Button
               className="pf-m-link--align-left"
               onClick={() => {
-                onChange([...ports, { port: '', protocol: 'TCP' }]);
+                onChange([...ports, { key: _.uniqueId('port-'), port: '', protocol: 'TCP' }]);
               }}
               type="button"
               variant="link"

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dropdown } from '../utils';
+import { Dropdown } from '@console/internal/components/utils';
 
 export type NetworkPolicyPeerType = 'sameNS' | 'anyNS' | 'ipBlock';
 
@@ -25,7 +25,7 @@ export const NetworkPolicyAddPeerDropdown: React.FunctionComponent<NetworkPolicy
         }}
         title={title}
         onChange={onSelect}
-        noSelection={true}
+        noSelection
         buttonClassName="pf-c-button pf-m-secondary"
       />
     </div>

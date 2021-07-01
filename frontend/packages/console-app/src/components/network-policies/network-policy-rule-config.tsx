@@ -1,6 +1,4 @@
-import * as _ from 'lodash';
 import * as React from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   CardBody,
@@ -11,15 +9,16 @@ import {
   FormFieldGroupHeader,
 } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
-
-import { NetworkPolicyPorts } from './network-policy-ports';
+import * as _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 import {
   NetworkPolicyAddPeerDropdown,
   NetworkPolicyPeerType,
 } from './network-policy-add-peer-dropdown';
+import { NetworkPolicyPeer, NetworkPolicyRule } from './network-policy-model';
 import { NetworkPolicyPeerIPBlock } from './network-policy-peer-ipblock';
 import { NetworkPolicyPeerSelectors } from './network-policy-peer-selectors';
-import { NetworkPolicyPeer, NetworkPolicyRule } from './network-policy-model';
+import { NetworkPolicyPorts } from './network-policy-ports';
 
 const getPeerRuleTitle = (t, direction: 'ingress' | 'egress', peer: NetworkPolicyPeer) => {
   if (peer.ipBlock) {
@@ -83,7 +82,7 @@ export const NetworkPolicyRuleConfigPanel: React.FunctionComponent<RuleConfigPro
   };
 
   return (
-    <Card style={{ marginBottom: 15 }}>
+    <Card>
       <CardTitle component="h4">
         <div className="co-create-networkpolicy__rule-header">
           <label>
@@ -145,6 +144,7 @@ export const NetworkPolicyRuleConfigPanel: React.FunctionComponent<RuleConfigPro
                     }}
                     actions={
                       <Button
+                        aria-label={t('public~Remove peer')}
                         className="co-create-networkpolicy__remove-peer"
                         onClick={() => removePeer(idx)}
                         type="button"

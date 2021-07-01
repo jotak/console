@@ -4,7 +4,7 @@ import {
   NetworkPolicyPort as K8SPort,
   NetworkPolicyPeer as K8SPeer,
   Selector,
-} from '../../module/k8s';
+} from '@console/internal/module/k8s';
 
 // Reference: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#networkpolicyspec-v1-networking-k8s-io
 
@@ -36,10 +36,11 @@ export interface NetworkPolicyPeer {
 
 export interface NetworkPolicyIPBlock {
   cidr: string;
-  except: string[];
+  except: { key: string; value: string }[];
 }
 
 export type NetworkPolicyPort = {
+  key: string;
   protocol: string;
   port: string;
 };
@@ -94,7 +95,10 @@ const ruleToK8s = (
       rule.peers.map((p) => {
         const peer: K8SPeer = {};
         if (p.ipBlock) {
-          peer.ipBlock = p.ipBlock;
+          peer.ipBlock = {
+            cidr: p.ipBlock.cidr,
+            ...(p.ipBlock.except && { except: p.ipBlock.except.map((e) => e.value) }),
+          };
         } else {
           if (p.podSelector) {
             const sel = selectorToK8s(p.podSelector, {});

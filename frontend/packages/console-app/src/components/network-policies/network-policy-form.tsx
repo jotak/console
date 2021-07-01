@@ -1,6 +1,4 @@
-import * as _ from 'lodash';
 import * as React from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   ActionGroup,
   Alert,
@@ -11,22 +9,22 @@ import {
   FormFieldGroupHeader,
   AlertActionCloseButton,
 } from '@patternfly/react-core';
+import * as _ from 'lodash';
+import { useTranslation } from 'react-i18next';
+import { Checkbox } from '@console/internal/components/checkbox';
+import { confirmModal } from '@console/internal/components/modals/confirm-modal';
+import { ButtonBar, history, resourcePathFromModel } from '@console/internal/components/utils';
+import { NetworkPolicyModel } from '@console/internal/models';
+import { k8sCreate } from '@console/internal/module/k8s';
 import { YellowExclamationTriangleIcon } from '@console/shared';
-
-import { ButtonBar, history, resourcePathFromModel } from '../utils';
-import { k8sCreate } from '../../module/k8s';
-import { NetworkPolicyModel } from '../../models';
-import { Checkbox } from '../checkbox';
-import { NetworkPolicyRuleConfigPanel } from './network-policy-rule-config';
-import { confirmModal } from '../modals/confirm-modal';
+import { NetworkPolicyConditionalSelector } from './network-policy-conditional-selector';
 import {
   isNetworkPolicyConversionError,
   NetworkPolicy,
   NetworkPolicyRule,
-  NetworkPolicyRules,
   networkPolicyToK8sResource,
 } from './network-policy-model';
-import { NetworkPolicyConditionalSelector } from './network-policy-conditional-selector';
+import { NetworkPolicyRuleConfigPanel } from './network-policy-rule-config';
 
 const emptyRule = (): NetworkPolicyRule => {
   return {
@@ -37,13 +35,29 @@ const emptyRule = (): NetworkPolicyRule => {
 };
 
 type NetworkPolicyFormProps = {
-  networkPolicy: NetworkPolicy;
-  setNetworkPolicy: (networkPolicy: NetworkPolicy) => void;
+  namespace: string;
+  setNamespace: (namespace: string) => void;
 };
 
 export const NetworkPolicyForm: React.FunctionComponent<NetworkPolicyFormProps> = (props) => {
   const { t } = useTranslation();
-  const { networkPolicy, setNetworkPolicy } = props;
+  const { namespace, setNamespace } = props;
+
+  const emptyPolicy: NetworkPolicy = {
+    name: '',
+    namespace,
+    podSelector: [['', '']],
+    ingress: {
+      denyAll: false,
+      rules: [],
+    },
+    egress: {
+      denyAll: false,
+      rules: [],
+    },
+  };
+
+  const [networkPolicy, setNetworkPolicy] = React.useState(emptyPolicy);
   const [inProgress, setInProgress] = React.useState(false);
   const [error, setError] = React.useState('');
   const [showSDNAlert, setShowSDNAlert] = React.useState(true);
@@ -51,8 +65,11 @@ export const NetworkPolicyForm: React.FunctionComponent<NetworkPolicyFormProps> 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setNetworkPolicy({ ...networkPolicy, name: event.currentTarget.value });
 
-  const handleNamespaceChange = (event: React.ChangeEvent<HTMLInputElement>) =>
-    setNetworkPolicy({ ...networkPolicy, namespace: event.currentTarget.value });
+  const handleNamespaceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const ns = event.currentTarget.value;
+    setNetworkPolicy({ ...networkPolicy, namespace: ns });
+    setNamespace(ns);
+  };
 
   const handleMainPodSelectorChange = (updated: string[][]) => {
     setNetworkPolicy({ ...networkPolicy, podSelector: updated });
@@ -131,21 +148,6 @@ export const NetworkPolicyForm: React.FunctionComponent<NetworkPolicyFormProps> 
     ]);
   };
 
-  const areValidRules = (rules: NetworkPolicyRules) => {
-    return (
-      rules.denyAll || !rules.rules.some((r) => r.peers.some((p) => p.ipBlock && !p.ipBlock.cidr))
-    );
-  };
-
-  const isValid = () => {
-    return (
-      networkPolicy.name &&
-      networkPolicy.namespace &&
-      areValidRules(networkPolicy.ingress) &&
-      areValidRules(networkPolicy.egress)
-    );
-  };
-
   const save = (event) => {
     event.preventDefault();
 
@@ -156,18 +158,17 @@ export const NetworkPolicyForm: React.FunctionComponent<NetworkPolicyFormProps> 
     }
 
     setInProgress(true);
-    k8sCreate(NetworkPolicyModel, policy).then(
-      () => {
+    k8sCreate(NetworkPolicyModel, policy)
+      .then(() => {
         setInProgress(false);
         history.push(
           resourcePathFromModel(NetworkPolicyModel, networkPolicy.name, networkPolicy.namespace),
         );
-      },
-      (err) => {
+      })
+      .catch((err) => {
         setError(err.message);
         setInProgress(false);
-      },
-    );
+      });
   };
 
   return (
@@ -230,19 +231,23 @@ export const NetworkPolicyForm: React.FunctionComponent<NetworkPolicyFormProps> 
       <div className="form-group co-create-networkpolicy__deny">
         <label>{t('public~Select default ingress and egress deny rules')}</label>
 
-        <div style={{ display: 'flex' }}>
-          <Checkbox
-            label={t('public~Deny all ingress traffic')}
-            onChange={handleDenyAllIngress}
-            checked={networkPolicy.ingress.denyAll}
-            name="denyAllIngress"
-          />
-          <Checkbox
-            label={t('public~Deny all egress traffic')}
-            onChange={handleDenyAllEgress}
-            checked={networkPolicy.egress.denyAll}
-            name="denyAllEgress"
-          />
+        <div className="co-create-networkpolicy__deny-checkboxes">
+          <div className="co-create-networkpolicy__deny-checkbox">
+            <Checkbox
+              label={t('public~Deny all ingress traffic')}
+              onChange={handleDenyAllIngress}
+              checked={networkPolicy.ingress.denyAll}
+              name="denyAllIngress"
+            />
+          </div>
+          <div className="co-create-networkpolicy__deny-checkbox">
+            <Checkbox
+              label={t('public~Deny all egress traffic')}
+              onChange={handleDenyAllEgress}
+              checked={networkPolicy.egress.denyAll}
+              name="denyAllEgress"
+            />
+          </div>
         </div>
       </div>
       {!networkPolicy.ingress.denyAll && (
@@ -341,7 +346,7 @@ export const NetworkPolicyForm: React.FunctionComponent<NetworkPolicyFormProps> 
       )}
       <ButtonBar errorMessage={error} inProgress={inProgress}>
         <ActionGroup className="pf-c-form">
-          <Button type="submit" isDisabled={!isValid()} id="save-changes" variant="primary">
+          <Button type="submit" id="save-changes" variant="primary">
             {t('public~Create')}
           </Button>
           <Button onClick={history.goBack} id="cancel" variant="secondary">
