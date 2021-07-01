@@ -85,7 +85,7 @@ export const EditYAML_ = connect(stateToProps)(
             stale: false,
             sampleObj: props.sampleObj,
             fileUpload: props.fileUpload,
-            showSidebar: !!props.create,
+            showSidebar: props.showSidebar !== undefined ? props.showSidebar : !!props.create,
             owner: null,
           };
           this.monacoRef = React.createRef();

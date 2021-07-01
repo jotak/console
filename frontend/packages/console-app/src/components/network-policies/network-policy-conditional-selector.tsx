@@ -25,7 +25,7 @@ export const NetworkPolicyConditionalSelector: React.FunctionComponent<NetworkPo
 ) => {
   const { t } = useTranslation();
   const { selectorType, helpText, values, onChange } = props;
-  const [isVisible, setVisible] = React.useState(false);
+  const [isVisible, setVisible] = React.useState(values.length > 0);
 
   const handleSelectorChange = (updated) => {
     onChange(updated.nameValuePairs);

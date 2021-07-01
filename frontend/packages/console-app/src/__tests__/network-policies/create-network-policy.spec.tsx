@@ -4,6 +4,7 @@ import { shallow, ShallowWrapper } from 'enzyme';
 import { ButtonBar } from '@console/internal/components/utils';
 import { NetworkPolicyForm } from '../../components/network-policies/network-policy-form';
 import { NetworkPolicy } from '../../components/network-policies/network-policy-model';
+import { NetworkPolicyRuleConfigPanel } from '../../components/network-policies/network-policy-rule-config';
 
 jest.mock('react-i18next', () => {
   const reactI18next = require.requireActual('react-i18next');
@@ -18,6 +19,19 @@ jest.mock('react-i18next', () => {
 });
 
 const i18nNS = 'public';
+const emptyPolicy: NetworkPolicy = {
+  name: '',
+  namespace: 'default',
+  podSelector: [['', '']],
+  ingress: {
+    denyAll: false,
+    rules: [],
+  },
+  egress: {
+    denyAll: false,
+    rules: [],
+  },
+};
 
 describe('NetworkPolicyForm', () => {
   let wrapper: ShallowWrapper<{}, { networkPolicy: NetworkPolicy }>;
@@ -53,5 +67,36 @@ describe('NetworkPolicyForm', () => {
         .childAt(0)
         .text(),
     ).toEqual(`${i18nNS}~Cancel`);
+  });
+
+  it('should render multiple rules', () => {
+    const networkPolicy = { ...emptyPolicy };
+    networkPolicy.ingress = {
+      denyAll: false,
+      rules: [
+        {
+          key: '1',
+          peers: [],
+          ports: [],
+        },
+        {
+          key: '2',
+          peers: [],
+          ports: [],
+        },
+      ],
+    };
+    networkPolicy.egress = {
+      denyAll: false,
+      rules: [
+        {
+          key: '3',
+          peers: [],
+          ports: [],
+        },
+      ],
+    };
+    wrapper.setProps({ networkPolicy });
+    expect(wrapper.find(NetworkPolicyRuleConfigPanel)).toHaveLength(3);
   });
 });

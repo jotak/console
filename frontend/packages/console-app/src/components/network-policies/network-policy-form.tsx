@@ -35,29 +35,14 @@ const emptyRule = (): NetworkPolicyRule => {
 };
 
 type NetworkPolicyFormProps = {
-  namespace: string;
-  setNamespace: (namespace: string) => void;
+  networkPolicy: NetworkPolicy;
+  setNetworkPolicy: (np: NetworkPolicy) => void;
 };
 
 export const NetworkPolicyForm: React.FunctionComponent<NetworkPolicyFormProps> = (props) => {
   const { t } = useTranslation();
-  const { namespace, setNamespace } = props;
+  const { networkPolicy, setNetworkPolicy } = props;
 
-  const emptyPolicy: NetworkPolicy = {
-    name: '',
-    namespace,
-    podSelector: [['', '']],
-    ingress: {
-      denyAll: false,
-      rules: [],
-    },
-    egress: {
-      denyAll: false,
-      rules: [],
-    },
-  };
-
-  const [networkPolicy, setNetworkPolicy] = React.useState(emptyPolicy);
   const [inProgress, setInProgress] = React.useState(false);
   const [error, setError] = React.useState('');
   const [showSDNAlert, setShowSDNAlert] = React.useState(true);
@@ -65,11 +50,8 @@ export const NetworkPolicyForm: React.FunctionComponent<NetworkPolicyFormProps> 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setNetworkPolicy({ ...networkPolicy, name: event.currentTarget.value });
 
-  const handleNamespaceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const ns = event.currentTarget.value;
-    setNetworkPolicy({ ...networkPolicy, namespace: ns });
-    setNamespace(ns);
-  };
+  const handleNamespaceChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setNetworkPolicy({ ...networkPolicy, namespace: event.currentTarget.value });
 
   const handleMainPodSelectorChange = (updated: string[][]) => {
     setNetworkPolicy({ ...networkPolicy, podSelector: updated });
@@ -151,7 +133,7 @@ export const NetworkPolicyForm: React.FunctionComponent<NetworkPolicyFormProps> 
   const save = (event) => {
     event.preventDefault();
 
-    const policy = networkPolicyToK8sResource(networkPolicy);
+    const policy = networkPolicyToK8sResource(networkPolicy, t);
     if (isNetworkPolicyConversionError(policy)) {
       setError(policy.error);
       return;
